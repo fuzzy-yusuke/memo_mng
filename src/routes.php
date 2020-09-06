@@ -13,10 +13,17 @@ return function (App $app) {
 
     //新規作成
     $app->get('/memo/new',function(Request $request, Response $response){
-    });
+        $subject=$request->getParsedBodyParam('subject');
+        //以下、DBへの保存
+        $sql = 'INSERT INTO memo (subject) values (:subject)';
+        $stmt = $this->db->prepare($sql);
+        $result = $stmt->execute(['subject'=>$subject]);
+        if(!$result){
+            throw new \Exception('メモを保存出来ませんでした。');
+        }
 
-    //保存（新規作成語に実行される。登録）
-    $app->post('/memo',function(Request $request, Response $response){
+        //保存出来た場合、一覧ページへリダイレクトする
+        return $response->withRedirect("/memos");
     });
 
     //詳細ページ（以下、特定の投稿に対しての処理になるので、「array $args」でidを指定する。）
